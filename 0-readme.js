@@ -1,4 +1,4 @@
-/*eslint-disable*/
+#!/usr/bin/node
 const fs = require("fs");
 
 fs.readFile("0-readme.js", "utf-8", (err, data) => {
