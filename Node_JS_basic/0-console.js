@@ -1,2 +1,2 @@
 const displayMessage = (aString) => console.log(aString);
-module.exports = displayMessage
+module.exports = displayMessage;
