@@ -1,31 +1,30 @@
+/* eslint-disable */
 const express = require('express');
+
+const args = process.argv.slice(2);
 const countStudents = require('./3-read_file_async');
 
+const DATABASE = args[0];
+
 const app = express();
+const port = 1245;
 
-app.get('/', (request, response) => {
-  response.send('Hello Holberton School!');
+app.get('/', (req, res) => {
+  res.send('Hello Holberton School!');
 });
 
-app.get('/students', (request, response) => {
-  countStudents(process.argv[2])
-    .then(({ students, subjects }) => {
-      response.write('This is the list of our students\n');
-      response.write(`Number of students: ${students.length}\n`);
-      for (const field in subjects) {
-        if (field) {
-          const list = subjects[field];
-          response.write(`Number of students in ${field}: ${list.length}. List: ${list.join(', ')}\n`);
-        }
-      }
-      response.end();
-    })
-    .catch((error) => {
-      response.write('This is the list of our students\n');
-      response.end(error.message);
-    });
+app.get('/students', async (req, res) => {
+  const msg = 'This is the list of our students\n';
+  try {
+    const students = await countStudents(DATABASE);
+    res.send(`${msg}${students.join('\n')}`);
+  } catch (error) {
+    res.send(`${msg}${error.message}`);
+  }
 });
 
-app.listen(1245);
+app.listen(port, () => {
+  //   console.log(`Example app listening at http://localhost:${port}`);
+});
 
 module.exports = app;
