@@ -1,29 +1,37 @@
+/* eslint-disable */
 const http = require('http');
-const url = require('url');
+
+const args = process.argv.slice(2);
 const countStudents = require('./3-read_file_async');
 
-const app = http.createServer((require, result) => {
-  const path = url.parse(require.url).pathname;
-  if (path === '/') {
-    result.end('Hello Holberton School!');
-  } else if (path === '/students') {
-    result.write('This is the list of our students\n');
-    countStudents(process.argv[2])
-      .then((data) => {
-        result.write(`Number of students: ${data.students.length}\n`);
-        for (const field in data.subjects) {
-          if (Object.prototype.hasOwnProperty.call(data.subjects, field)) {
-            result.write(`Number of students in ${field}: ${data.subjects[field].length}. List: ${data.subjects[field].join(', ')}\n`);
-          }
-        }
-        result.end();
-      })
-      .catch((error) => {
-        result.end(error.message);
-      });
+const DATABASE = args[0];
+
+const hostname = '127.0.0.1';
+const port = 1245;
+
+const app = http.createServer(async (req, res) => {
+  res.statusCode = 200;
+  res.setHeader('Content-Type', 'text/plain');
+
+  const { url } = req;
+
+  if (url === '/') {
+    res.write('Hello Holberton School!');
+  } else if (url === '/students') {
+    res.write('This is the list of our students\n');
+    try {
+      const students = await countStudents(DATABASE);
+      res.end(`${students.join('\n')}`);
+    } catch (error) {
+      res.end(error.message);
+    }
   }
+  res.statusCode = 404;
+  res.end();
 });
 
-app.listen(1245);
+app.listen(port, hostname, () => {
+  //   console.log(`Server running at http://${hostname}:${port}/`);
+});
 
 module.exports = app;
